@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Gbesoin – L'app du peuple</title>
+  <meta name="description" content="Pose ta demande, reçois des réponses. Marketplace locale Île-de-France pour particuliers et pros." />
+  <meta name="theme-color" content="#0f172a" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.08); }
+    .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
+    .dark-glass { background: rgba(15,23,42,0.9); backdrop-filter: blur(12px); }
+    .slide-up { animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <div id="app" class="min-h-screen max-w-lg mx-auto relative bg-white shadow-2xl">
+
+    <!-- HEADER -->
+    <header id="header" class="sticky top-0 z-40 glass border-b border-slate-200/80">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-slate-900">Gbesoin</h1>
+            <p class="text-[11px] text-slate-500 -mt-0.5">Île-de-France • L'app du peuple</p>
+          </div>
+        </div>
+        <button onclick="showProfile()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition">
+          <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </button>
+      </div>
+
+      <!-- Categories -->
+      <div class="px-4 pb-3 overflow-x-auto scrollbar-hide">
+        <div class="flex gap-2" id="category-filters">
+          <!-- JS will fill -->
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN FEED -->
+    <main id="feed-view" class="pb-28">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <p class="text-sm text-slate-500"><span id="request-count">0</span> demandes près de toi</p>
+        <select id="location-filter" onchange="renderFeed()" class="text-sm bg-slate-100 border-0 rounded-lg px-3 py-1.5 font-medium text-slate-700 focus:ring-2 focus:ring-brand-500">
+          <option value="all">Toute l'IDF</option>
+          <option value="75">Paris (75)</option>
+          <option value="91">Essonne (91)</option>
+          <option value="92">Hauts-de-Seine (92)</option>
+          <option value="93">Seine-Saint-Denis (93)</option>
+          <option value="94">Val-de-Marne (94)</option>
+          <option value="95">Val-d'Oise (95)</option>
+          <option value="77">Seine-et-Marne (77)</option>
+          <option value="78">Yvelines (78)</option>
+        </select>
+      </div>
+      <div id="feed" class="px-4 space-y-4">
+        <!-- Cards -->
+      </div>
+    </main>
+
+    <!-- CREATE VIEW -->
+    <div id="create-view" class="hidden fixed inset-0 z-50 bg-white max-w-lg mx-auto">
+      <div class="flex flex-col h-full">
+        <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+          <button onclick="hideCreate()" class="text-slate-600 font-medium">Annuler</button>
+          <h2 class="font-bold text-lg">Nouvelle demande</h2>
+          <button onclick="submitRequest()" id="submit-btn" class="text-brand-600 font-bold disabled:opacity-40">Publier</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-5">
+          <!-- Photo -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Photo (recommandé)</label>
+            <div id="photo-preview" class="relative w-full aspect-[4/3] rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden cursor-pointer" onclick="document.getElementById('photo-input').click()">
+              <div id="photo-placeholder" class="text-center">
+                <svg class="w-10 h-10 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <p class="text-sm text-slate-500">Ajouter une photo</p>
+              </div>
+              <img id="photo-img" class="hidden absolute inset-0 w-full h-full object-cover" />
+            </div>
+            <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhoto(event)" />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Que cherches-tu ?</label>
+            <textarea id="request-text" rows="4" placeholder="Ex: J'ai besoin d'un feu avant gauche + aile avant gauche pour Clio 4..." class="w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none"></textarea>
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Catégorie</label>
+            <div class="grid grid-cols-2 gap-2" id="category-select">
+              <!-- JS -->
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Où es-tu ?</label>
+            <select id="request-location" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="91">Évry / Essonne (91)</option>
+              <option value="75">Paris (75)</option>
+              <option value="92">Hauts-de-Seine (92)</option>
+              <option value="93">Seine-Saint-Denis (93)</option>
+              <option value="94">Val-de-Marne (94)</option>
+              <option value="95">Val-d'Oise (95)</option>
+              <option value="77">Seine-et-Marne (77)</option>
+              <option value="78">Yvelines (78)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL VIEW -->
+    <div id="detail-view" class="hidden fixed inset-0 z-50 bg-white max-w-lg mx-auto flex flex-col">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-3 sticky top-0 bg-white z-10">
+        <button onclick="hideDetail()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <h2 class="font-bold text-lg flex-1">Demande</h2>
+      </div>
+      <div id="detail-content" class="flex-1 overflow-y-auto">
+        <!-- Filled by JS -->
+      </div>
+      <div class="border-t border-slate-200 p-4 safe-bottom bg-white">
+        <div class="flex gap-2">
+          <input id="reply-input" type="text" placeholder="Écrire une réponse..." class="flex-1 rounded-full border border-slate-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 outline-none" />
+          <button onclick="sendReply()" class="w-11 h-11 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-600/30 hover:bg-brand-700 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div id="profile-view" class="hidden fixed inset-0 z-50 bg-white max-w-lg mx-auto">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-3">
+        <button onclick="hideProfile()" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <h2 class="font-bold text-lg">Mon profil</h2>
+      </div>
+      <div class="p-6 text-center">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+          <span id="profile-initial">U</span>
+        </div>
+        <h3 class="mt-4 text-xl font-bold" id="profile-name">Utilisateur</h3>
+        <p class="text-slate-500 text-sm mt-1">Île-de-France</p>
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <p class="text-2xl font-bold text-brand-600" id="my-requests-count">0</p>
+            <p class="text-xs text-slate-500 mt-1">Mes demandes</p>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-4">
+            <p class="text-2xl font-bold text-brand-600" id="my-replies-count">0</p>
+            <p class="text-xs text-slate-500 mt-1">Mes réponses</p>
+          </div>
+        </div>
+        <button onclick="resetData()" class="mt-8 text-sm text-red-500 font-medium">Réinitialiser les données de démo</button>
+      </div>
+    </div>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <button onclick="showCreate()" 
+            class="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-xl shadow-brand-600/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+    </button>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white px-5 py-3 rounded-full text-sm font-medium shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 max-w-xs text-center"></div>
+  </div>
+
+  <script>
+    // ==================== DATA ====================
+    const CATEGORIES = [
+      { id: 'all', label: 'Tout', emoji: '🔥' },
+      { id: 'auto', label: 'Auto & Pièces', emoji: '🚗' },
+      { id: 'services', label: 'Services', emoji: '🛠️' },
+      { id: 'maison', label: 'Maison', emoji: '🏠' },
+      { id: 'autre', label: 'Autre', emoji: '✨' },
+    ];
+
+    const LOCATION_NAMES = {
+      '75': 'Paris',
+      '91': 'Essonne',
+      '92': 'Hauts-de-Seine',
+      '93': 'Seine-Saint-Denis',
+      '94': 'Val-de-Marne',
+      '95': "Val-d'Oise",
+      '77': 'Seine-et-Marne',
+      '78': 'Yvelines',
+    };
+
+    const DEFAULT_REQUESTS = [
+      {
+        id: '1',
+        text: "J'ai besoin d'un feu avant gauche / une aile avant gauche / porte arrière gauche",
+        category: 'auto',
+        location: '91',
+        city: 'Évry',
+        author: 'Un Simple Expert',
+        time: Date.now() - 8 * 3600 * 1000,
+        photo: null,
+        replies: [
+          { id: 'r1', author: 'Garage Pro 91', text: 'J\'ai une aile avant gauche Clio 4 en stock, couleur grise. Tu es où exactement ?', time: Date.now() - 6 * 3600 * 1000 },
+          { id: 'r2', author: 'Karim', text: 'Je peux te faire le feu avant gauche d\'occasion, 45€', time: Date.now() - 3 * 3600 * 1000 },
+        ]
+      },
+      {
+        id: '2',
+        text: "Quelqu'un pose des résistances sur les LINKI dans le 91 ?",
+        category: 'services',
+        location: '91',
+        city: 'Corbeil-Essonnes',
+        author: 'Un Simple Expert',
+        time: Date.now() - 35 * 60 * 1000,
+        photo: null,
+        replies: []
+      },
+      {
+        id: '3',
+        text: "Cherche quelqu'un pour monter un meuble IKEA (lit + 2 armoires) ce week-end à Créteil. Budget 80-100€.",
+        category: 'services',
+        location: '94',
+        city: 'Créteil',
+        author: 'Sophie M.',
+        time: Date.now() - 2 * 3600 * 1000,
+        photo: null,
+        replies: [
+          { id: 'r3', author: 'BricoleurIDF', text: 'Dispo samedi après-midi, je connais bien les meubles IKEA. On se contacte ?', time: Date.now() - 1 * 3600 * 1000 }
+        ]
+      },
+      {
+        id: '4',
+        text: "Besoin urgent d'un plombier pour fuite sous évier à Boulogne. Ce soir si possible.",
+        category: 'services',
+        location: '92',
+        city: 'Boulogne-Billancourt',
+        author: 'Thomas',
+        time: Date.now() - 45 * 60 * 1000,
+        photo: null,
+        replies: []
+      },
+      {
+        id: '5',
+        text: "Je cherche des jantes 17\" pour Golf 7, occasion propre. Zone Paris Nord ou 93.",
+        category: 'auto',
+        location: '93',
+        city: 'Saint-Denis',
+        author: 'Mehdi',
+        time: Date.now() - 5 * 3600 * 1000,
+        photo: null,
+        replies: []
+      },
+      {
+        id: '6',
+        text: "Quelqu'un peut m'aider à déménager 3 cartons + un canapé de Paris 11e vers Montreuil samedi matin ?",
+        category: 'services',
+        location: '75',
+        city: 'Paris 11e',
+        author: 'Léa',
+        time: Date.now() - 12 * 3600 * 1000,
+        photo: null,
+        replies: [
+          { id: 'r4', author: 'MovePro', text: 'Je peux passer avec mon utilitaire, 60€ tout compris.', time: Date.now() - 10 * 3600 * 1000 }
+        ]
+      }
+    ];
+
+    // ==================== STATE ====================
+    let requests = [];
+    let currentCategory = 'all';
+    let currentDetailId = null;
+    let selectedCategory = 'auto';
+    let photoData = null;
+    let currentUser = { name: 'Toi', isPro: false };
+
+    // ==================== INIT ====================
+    function init() {
+      const saved = localStorage.getItem('gbesoin-requests');
+      if (saved) {
+        requests = JSON.parse(saved);
+      } else {
+        requests = DEFAULT_REQUESTS;
+        save();
+      }
+      renderCategories();
+      renderCategorySelect();
+      renderFeed();
+      updateCounts();
+    }
+
+    function save() {
+      localStorage.setItem('gbesoin-requests', JSON.stringify(requests));
+    }
+
+    // ==================== RENDER ====================
+    function renderCategories() {
+      const el = document.getElementById('category-filters');
+      el.innerHTML = CATEGORIES.map(c => `
+        <button onclick="setCategory('${c.id}')" 
+          class="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all
+          ${currentCategory === c.id 
+            ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' 
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+          ${c.emoji} ${c.label}
+        </button>
+      `).join('');
+    }
+
+    function renderCategorySelect() {
+      const el = document.getElementById('category-select');
+      el.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
+        <button type="button" onclick="selectCategory('${c.id}')" 
+          id="cat-btn-${c.id}"
+          class="px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all
+          ${selectedCategory === c.id 
+            ? 'border-brand-500 bg-brand-50 text-brand-700' 
+            : 'border-slate-200 text-slate-600 hover:border-slate-300'}">
+          ${c.emoji} ${c.label}
+        </button>
+      `).join('');
+    }
+
+    function setCategory(id) {
+      currentCategory = id;
+      renderCategories();
+      renderFeed();
+    }
+
+    function selectCategory(id) {
+      selectedCategory = id;
+      renderCategorySelect();
+    }
+
+    function renderFeed() {
+      const locFilter = document.getElementById('location-filter').value;
+      let filtered = requests
+        .filter(r => currentCategory === 'all' || r.category === currentCategory)
+        .filter(r => locFilter === 'all' || r.location === locFilter)
+        .sort((a, b) => b.time - a.time);
+
+      document.getElementById('request-count').textContent = filtered.length;
+
+      const feed = document.getElementById('feed');
+      if (filtered.length === 0) {
+        feed.innerHTML = `
+          <div class="text-center py-16">
+            <div class="text-5xl mb-4">🔍</div>
+            <p class="text-slate-500 font-medium">Aucune demande pour le moment</p>
+            <p class="text-sm text-slate-400 mt-1">Sois le premier à poster !</p>
+          </div>`;
+        return;
+      }
+
+      feed.innerHTML = filtered.map(r => {
+        const cat = CATEGORIES.find(c => c.id === r.category) || CATEGORIES[4];
+        const timeAgo = formatTime(r.time);
+        const replyCount = r.replies?.length || 0;
+        return `
+          <article onclick="showDetail('${r.id}')" class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden active:scale-[0.98] transition-transform cursor-pointer fade-in">
+            ${r.photo ? `<img src="${r.photo}" class="w-full h-44 object-cover" />` : ''}
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${cat.emoji} ${cat.label}</span>
+                <span class="text-xs text-slate-400">•</span>
+                <span class="text-xs text-slate-500">${r.city || LOCATION_NAMES[r.location] || r.location}</span>
+              </div>
+              <p class="text-[15px] font-medium text-slate-800 leading-snug line-clamp-3">${escapeHtml(r.text)}</p>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-[10px] font-bold text-white">
+                    ${r.author.charAt(0).toUpperCase()}
+                  </div>
+                  <span class="text-xs text-slate-500">${escapeHtml(r.author)}</span>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-slate-400">
+                  <span>${timeAgo}</span>
+                  ${replyCount > 0 ? `<span class="flex items-center gap-1 text-brand-600 font-medium">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    ${replyCount}
+                  </span>` : ''}
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function showDetail(id) {
+      currentDetailId = id;
+      const r = requests.find(x => x.id === id);
+      if (!r) return;
+
+      const cat = CATEGORIES.find(c => c.id === r.category) || CATEGORIES[4];
+      const timeAgo = formatTime(r.time);
+
+      document.getElementById('detail-content').innerHTML = `
+        <div class="p-4">
+          ${r.photo ? `<img src="${r.photo}" class="w-full rounded-2xl mb-4 object-cover max-h-64" />` : ''}
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-50 text-brand-700">${cat.emoji} ${cat.label}</span>
+            <span class="text-xs text-slate-500">${r.city || LOCATION_NAMES[r.location]} • ${timeAgo}</span>
+          </div>
+          <p class="text-[17px] font-medium text-slate-900 leading-relaxed">${escapeHtml(r.text)}</p>
+          <div class="flex items-center gap-2 mt-4">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center text-xs font-bold text-white">
+              ${r.author.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p class="text-sm font-semibold">${escapeHtml(r.author)}</p>
+              <p class="text-xs text-slate-400">Particulier</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-4 pb-4">
+          <h3 class="font-bold text-sm text-slate-500 uppercase tracking-wide mb-3">
+            ${r.replies?.length || 0} réponse${(r.replies?.length || 0) > 1 ? 's' : ''}
+          </h3>
+          <div class="space-y-3" id="replies-list">
+            ${(r.replies || []).map(reply => `
+              <div class="bg-slate-50 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[10px] font-bold text-white">
+                    ${reply.author.charAt(0).toUpperCase()}
+                  </div>
+                  <span class="text-sm font-semibold">${escapeHtml(reply.author)}</span>
+                  <span class="text-xs text-slate-400 ml-auto">${formatTime(reply.time)}</span>
+                </div>
+                <p class="text-[15px] text-slate-700 leading-snug">${escapeHtml(reply.text)}</p>
+              </div>
+            `).join('') || '<p class="text-sm text-slate-400 text-center py-6">Aucune réponse pour le moment. Sois le premier !</p>'}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detail-view').classList.remove('hidden');
+      document.getElementById('detail-view').classList.add('slide-up');
+      document.getElementById('reply-input').value = '';
+    }
+
+    function hideDetail() {
+      document.getElementById('detail-view').classList.add('hidden');
+      currentDetailId = null;
+      renderFeed();
+    }
+
+    // ==================== CREATE ====================
+    function showCreate() {
+      document.getElementById('create-view').classList.remove('hidden');
+      document.getElementById('create-view').classList.add('slide-up');
+      document.getElementById('request-text').value = '';
+      photoData = null;
+      document.getElementById('photo-img').classList.add('hidden');
+      document.getElementById('photo-placeholder').classList.remove('hidden');
+      selectedCategory = 'auto';
+      renderCategorySelect();
+    }
+
+    function hideCreate() {
+      document.getElementById('create-view').classList.add('hidden');
+    }
+
+    function handlePhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        photoData = ev.target.result;
+        document.getElementById('photo-img').src = photoData;
+        document.getElementById('photo-img').classList.remove('hidden');
+        document.getElementById('photo-placeholder').classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitRequest() {
+      const text = document.getElementById('request-text').value.trim();
+      if (!text) {
+        toast('Écris ta demande d\'abord');
+        return;
+      }
+      const loc = document.getElementById('request-location').value;
+      const newReq = {
+        id: Date.now().toString(),
+        text,
+        category: selectedCategory,
+        location: loc,
+        city: LOCATION_NAMES[loc] || loc,
+        author: currentUser.name,
+        time: Date.now(),
+        photo: photoData,
+        replies: []
+      };
+      requests.unshift(newReq);
+      save();
+      hideCreate();
+      renderFeed();
+      updateCounts();
+      toast('Demande publiée ! 🎉');
+    }
+
+    // ==================== REPLY ====================
+    function sendReply() {
+      const input = document.getElementById('reply-input');
+      const text = input.value.trim();
+      if (!text || !currentDetailId) return;
+
+      const r = requests.find(x => x.id === currentDetailId);
+      if (!r) return;
+
+      if (!r.replies) r.replies = [];
+      r.replies.push({
+        id: 'r' + Date.now(),
+        author: currentUser.name,
+        text,
+        time: Date.now()
+      });
+      save();
+      showDetail(currentDetailId);
+      input.value = '';
+      toast('Réponse envoyée !');
+      updateCounts();
+    }
+
+    // ==================== PROFILE ====================
+    function showProfile() {
+      document.getElementById('profile-view').classList.remove('hidden');
+      document.getElementById('profile-name').textContent = currentUser.name;
+      document.getElementById('profile-initial').textContent = currentUser.name.charAt(0).toUpperCase();
+      updateCounts();
+    }
+
+    function hideProfile() {
+      document.getElementById('profile-view').classList.add('hidden');
+    }
+
+    function updateCounts() {
+      const myReqs = requests.filter(r => r.author === currentUser.name).length;
+      const myReplies = requests.reduce((acc, r) => acc + (r.replies || []).filter(rep => rep.author === currentUser.name).length, 0);
+      document.getElementById('my-requests-count').textContent = myReqs;
+      document.getElementById('my-replies-count').textContent = myReplies;
+    }
+
+    function resetData() {
+      if (confirm('Réinitialiser toutes les données de démo ?')) {
+        localStorage.removeItem('gbesoin-requests');
+        requests = DEFAULT_REQUESTS;
+        save();
+        hideProfile();
+        renderFeed();
+        toast('Données réinitialisées');
+      }
+    }
+
+    // ==================== UTILS ====================
+    function formatTime(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'À l\'instant';
+      if (mins < 60) return `il y a ${mins} min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `il y a ${hours}h`;
+      const days = Math.floor(hours / 24);
+      return `il y a ${days}j`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('opacity-0');
+      el.classList.add('opacity-100');
+      setTimeout(() => {
+        el.classList.remove('opacity-100');
+        el.classList.add('opacity-0');
+      }, 2500);
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
